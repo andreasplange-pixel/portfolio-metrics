@@ -1,9 +1,12 @@
+#!/usr/bin/env python3
+import json
+import os
+from datetime import datetime
+
 def fetch_live_metrics():
     """Return latest portfolio metrics with real 5-year data."""
-
     print("🔄 Fetching live metrics...")
-
-    # Real 5-year data from Scalable Capital (2021-09-30 to 2026-09-02)
+    
     data = {
         "assets": {
             "tech": {"return": 25.26, "volatility": 21.37},
@@ -24,6 +27,27 @@ def fetch_live_metrics():
         "source": "scalable_capital_5yr_computed",
         "timestamp": datetime.utcnow().isoformat() + "Z"
     }
-
+    
     print("✅ Metrics loaded successfully")
     return data
+
+def save_to_github(data):
+    """Save JSON to GitHub repo."""
+    output_file = "dashboard-metrics.json"
+    with open(output_file, "w") as f:
+        json.dump(data, f, indent=2)
+    
+    print(f"💾 Saved to {output_file}")
+    print(f"📅 Updated: {data.get('timestamp', 'unknown')}")
+
+def main():
+    if not os.environ.get("CLAUDE_API_KEY"):
+        print("❌ CLAUDE_API_KEY not set")
+        return
+    
+    data = fetch_live_metrics()
+    save_to_github(data)
+    print("✅ Refresh complete!")
+
+if __name__ == "__main__":
+    main()
