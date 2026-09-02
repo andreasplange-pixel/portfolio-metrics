@@ -1,0 +1,25 @@
+name: Refresh Dashboard Metrics
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: pip install anthropic
+      - env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        run: python scripts/scheduled-refresh.py
+      - run: |
+          git config user.name "Dashboard Bot"
+          git config user.email "bot@example.com"
+          git add dashboard-metrics.json
+          git commit -m "chore: refresh metrics" || true
+          git push
